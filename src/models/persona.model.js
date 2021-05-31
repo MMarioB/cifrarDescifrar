@@ -12,10 +12,22 @@ function encrypt(text) {
  return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
 }
 
+// Desencriptar
+function decrypt(text) {
+    let iv = Buffer.from(text.iv, 'hex');
+    let encryptedText = Buffer.from(text.encryptedData, 'hex');
+    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+   }
+
 var Persona = function(persona){
     this.nombre = persona.nombre;
     this.email = persona.email;
+    this.iv_test = persona.iv_test;
     this.test = persona.test;
+    this.iv_resultado = persona.iv_resultado;
     this.resultado = persona.resultado;
     this.nprueba = persona.nprueba;
 }
@@ -35,8 +47,14 @@ Persona.getAllPersonas = (result) =>{
 
 //post persona nueva
 Persona.crearPersona = (personaReqData, result) =>{
+    personaReqData.test = encrypt(personaReqData.test);
+    console.log(personaReqData.test.encryptedData);
+    personaReqData.iv_test = personaReqData.test.iv;
+    personaReqData.test = personaReqData.test.encryptedData;
+
     personaReqData.resultado = encrypt(personaReqData.resultado);
     console.log(personaReqData.resultado.encryptedData);
+    personaReqData.iv_resultado = personaReqData.resultado.iv;
     personaReqData.resultado = personaReqData.resultado.encryptedData;
     conexion.query('INSERT INTO personas SET ? ', personaReqData, (err, res) => {
     
