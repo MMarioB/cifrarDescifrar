@@ -1,4 +1,18 @@
 const PersonaModel = require('../models/persona.model');
+const crypto = require('crypto');
+const algorithm = 'aes-256-cbc';
+const key = "YJAG4xYTTQ0Ke3FBIDgmobERgbi/Tl/LYt9cNmt5w0g=";
+//const iv = crypto.randomBytes(16);
+
+// Desencriptar
+function decrypt(text) {
+    let iv = Buffer.from(text.iv, 'hex');
+    let encryptedText = Buffer.from(text.encryptedData, 'hex');
+    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let decrypted = decipher.update(encryptedText);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
+    return decrypted.toString();
+   }
 
 // Obtenemos la lista de todos las personas
 exports.getPersonaList = (req, res) => {
@@ -7,6 +21,16 @@ exports.getPersonaList = (req, res) => {
         if(err)
         res.send(err);
         console.log('Persona', persona);
+        var cifradoTest = {
+            iv: persona[0].iv_test,
+            encryptedData: persona[0].test
+        }
+        console.log(decrypt(cifradoTest));
+        var cifradoResultado = {
+            iv: persona[0].iv_resultado,
+            encryptedData: persona[0].resultado
+        }
+        console.log(decrypt(cifradoResultado));
         res.send(persona);
     })
 }
